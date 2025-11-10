@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電腦餐廳 運作流程</title>
+    <style>
+        /* CSS 樣式 - 負責網頁的「外觀」*/
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            background-color: #f0f4f8;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #0056b3;
+        }
+
+        /* 餐廳的佈局 */
+        .restaurant-layout {
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            height: 500px;
+            background-color: #ffffff;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-top: 20px;
+            overflow: hidden; /* 確保 data-packet 不會跑出去 */
+        }
+
+        /* 餐廳員工 (硬體組件) */
+        .component {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            background-color: #fafafa;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            padding: 5px;
+            box-sizing: border-box; /* 確保 padding 不會影響寬高 */
+        }
+
+        .component .icon {
+            font-size: 36px;
+        }
+
+        .component .label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* 員工位置 */
+        #input   { top: 200px; left: 30px; }
+        #os      { top: 50px;  left: 150px; }
+        #cpu     { top: 200px; left: 300px; }
+        #storage { top: 350px; left: 200px; }
+        #ram     { top: 350px; left: 400px; }
+        #gpu     { top: 50px;  left: 550px; }
+        #sound   { top: 200px; left: 550px; }
+        #output  { top: 200px; right: 30px; }
+
+        /* 動態效果：被點亮 (工作中) */
+        .component.highlight {
+            border-style: solid;
+            border-color: #ff6347;
+            background-color: #fff5f3;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 99, 71, 0.5);
+        }
+
+        /* "點菜單" (資料包) */
+        #dataPacket {
+            position: absolute;
+            font-size: 30px;
+            /* 初始位置藏在 "輸入" 的地方 */
+            top: 230px; 
+            left: 60px;
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1); /* 絲滑的移動動畫 */
+            z-index: 10;
+            opacity: 0; /* 預設隱藏 */
+        }
+
+        /* 控制按鈕 */
+        .controls {
+            margin: 20px;
+        }
+        button {
+            font-size: 16px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        #resetButton {
+            background-color: #6c757d;
+            margin-left: 10px;
+        }
+        #resetButton:hover {
+            background-color: #5a6268;
+        }
+
+        /* 流程說明框 */
+        .log-box {
+            width: 90%;
+            max-width: 900px;
+            margin-top: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: left;
+            min-height: 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .log-box h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .log-box p {
+            margin-bottom: 0;
+            font-size: 16px;
+            color: #0056b3;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>歡迎光臨「電腦未來餐廳」！</h1>
+    <p>點擊按鈕，看看一份「YouTube 影片訂單」是如何完成的！</p>
+
+    <div class="controls">
+        <button id="startButton">點播 YouTube 影片</button>
+        <button id="resetButton" style="display: none;">重來一次</button>
+    </div>
+
+    <div id="log" class="log-box">
+        <h4>流程說明：</h4>
+        <p>請點擊開始按鈕...</p>
+    </div>
+
+    <div class="restaurant-layout">
+        
+        <div id="dataPacket">📋</div>
+
+        <div class="component" id="input">
+            <div class="icon">⌨️🖱️</div>
+            <div class="label">你 (輸入)</div>
+        </div>
+        <div class="component" id="os">
+            <div class="icon">🧠</div>
+            <div class="label">經理 (OS)</div>
+        </div>
+        <div class="component" id="cpu">
+            <div class="icon">🧑‍🍳</div>
+            <div class="label">主廚 (CPU)</div>
+        </div>
+        <div class="component" id="storage">
+            <div class="icon">🧊</div>
+            <div class="label">大冰箱 (硬碟)</div>
+        </div>
+        <div class="component" id="ram">
+            <div class="icon">🍳</div>
+            <div class="label">流理臺 (RAM)</div>
+        </div>
+        <div class="component" id="gpu">
+            <div class="icon">🎨</div>
+            <div class="label">擺盤師 (GPU)</div>
+        </div>
+        <div class="component" id="sound">
+            <div class="icon">🎶</div>
+            <div class="label">音效師 (音效卡)</div>
+        </div>
+        <div class="component" id="output">
+            <div class="icon">🖥️🔊</div>
+            <div class="label">上菜口 (輸出)</div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript - 負責網頁的「行為」和「動態」
+
+        // 1. 取得所有需要控制的 HTML 元素
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+        const dataPacket = document.getElementById('dataPacket');
+        const logBox = document.getElementById('log').querySelector('p');
+        
+        // 取得所有 "員工"
+        const components = {
+            input: document.getElementById('input'),
+            os: document.getElementById('os'),
+            cpu: document.getElementById('cpu'),
+            storage: document.getElementById('storage'),
+            ram: document.getElementById('ram'),
+            gpu: document.getElementById('gpu'),
+            sound: document.getElementById('sound'),
+            output: document.getElementById('output')
+        };
+
+        const initialPacketPos = { top: '230px', left: '60px' };
+
+        // 2. 幫按鈕加上 "點擊" 事件
+        startButton.addEventListener('click', runAnimation);
+        resetButton.addEventListener('click', resetAnimation);
+
+        // 3. 輔助工具：
+        
+        // "睡覺" 函式 (等待 X 毫秒)
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 移除所有 "highlight" 狀態
+        function clearHighlights() {
+            Object.values(components).forEach(el => el.classList.remove('highlight'));
+        }
+
+        // 移動 "點菜單" 到指定員工的位置
+        function movePacketTo(element) {
+            const target = element;
+            // 計算目標中心點位置
+            const top = target.offsetTop + (target.offsetHeight / 2) - 20 + 'px';
+            const left = target.offsetLeft + (target.offsetWidth / 2) - 15 + 'px';
+            dataPacket.style.top = top;
+            dataPacket.style.left = left;
+        }
+
+        // 更新流程說明
+        function updateLog(message) {
+            logBox.textContent = message;
+        }
+
+        // 4. 重置動畫
+        function resetAnimation() {
+            clearHighlights();
+            updateLog('請點擊開始按鈕...');
+            dataPacket.style.opacity = '0'; // 隱藏
+            dataPacket.style.top = initialPacketPos.top;
+            dataPacket.style.left = initialPacketPos.left;
+            
+            startButton.disabled = false;
+            resetButton.style.display = 'none';
+        }
+
+        // 5. 主要的動畫流程 (使用 async/await 來依序執行)
+        async function runAnimation() {
+            // 開始！
+            startButton.disabled = true; // 防止重複點擊
+            resetButton.style.display = 'inline-block';
+            clearHighlights();
+            dataPacket.style.opacity = '1'; // 顯示點菜單
+
+            // 步驟 1: 點餐 (輸入)
+            components.input.classList.add('highlight');
+            updateLog('步驟 1: 你 (顧客) 點擊了播放按鈕！');
+            await sleep(2000);
+
+            // 步驟 2: 服務生轉告經理 (OS)
+            clearHighlights();
+            components.os.classList.add('highlight');
+            movePacketTo(components.os);
+            updateLog('步驟 2: "服務生"(滑鼠) 將指令 📋 交給 "餐廳經理"(OS)。');
+            await sleep(2000);
+
+            // 步驟 3: 經理分派任務給主廚 (CPU)
+            clearHighlights();
+            components.cpu.classList.add('highlight');
+            movePacketTo(components.cpu);
+            updateLog('步驟 3: "經理"(OS) 判斷需要 "主廚"(CPU) 來處理這個影片任務！');
+            await sleep(2000);
+
+            // 步驟 4: 主廚準備食材 (Storage -> RAM)
+            clearHighlights();
+            components.cpu.classList.add('highlight');
+            components.storage.classList.add('highlight');
+            movePacketTo(components.storage);
+            updateLog('步驟 4a: "主廚"(CPU) 先跑去 "大冰箱"(硬碟/SSD) 拿取影片程式和資料。');
+            await sleep(2000);
+
+            clearHighlights();
+            components.cpu.classList.add('highlight');
+            components.ram.classList.add('highlight');
+            movePacketTo(components.ram);
+            updateLog('步驟 4b: "主廚" 把等下要用的食材 📋 放到 "流理臺"(RAM) 上。');
+            await sleep(2000);
+
+            // 步驟 5: 主廚開始料理 (Processing)
+            clearHighlights();
+            components.cpu.classList.add('highlight');
+            components.ram.classList.add('highlight');
+            movePacketTo(components.cpu); // 菜單回到主廚手上
+            updateLog('步驟 5: "主廚"(CPU) 在 "流理臺"(RAM) 上瘋狂料理 (解碼影片)！');
+            await sleep(2500);
+
+            // 步驟 6: 分工！擺盤與上菜 (GPU & Sound)
+            clearHighlights();
+            components.gpu.classList.add('highlight');
+            movePacketTo(components.gpu);
+            updateLog('步驟 6a: 料理好的「畫面」交給 "擺盤藝術家"(GPU) 進行精緻化處理。');
+            await sleep(2000);
+
+            clearHighlights();
+            components.sound.classList.add('highlight');
+            movePacketTo(components.sound);
+            updateLog('步驟 6b: 料理好的「聲音」交給 "音效師"(音效卡) 準備播放。');
+            await sleep(2000);
+
+            // 步驟 7: 餐點送到你面前 (Output)
+            clearHighlights();
+            components.output.classList.add('highlight');
+            movePacketTo(components.output);
+            updateLog('步驟 7: 上菜！「畫面」和「聲音」同時送到 "上菜口"(螢幕/喇叭)！');
+            await sleep(3000);
+
+            // 完成
+            clearHighlights();
+            components.output.classList.add('highlight');
+            updateLog('流程完成！你成功看到了 YouTube 影片！');
+            dataPacket.style.opacity = '0'; // 任務完成，隱藏菜單
+        }
+
+    </script>
+
+</body>
+</html>
