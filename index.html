@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>電腦餐廳 運作流程 (V2)</title>
+    <title>電腦餐廳 運作流程 (V2.1 - 修正版)</title>
     <style>
         /* CSS 樣式 - 負責網頁的「外觀」*/
         body {
@@ -144,7 +144,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align: center;
+            align-items: center; /* 【修正】 修正 CSS 拼字錯誤 */
             transition: all 0.3s ease;
             padding: 5px;
             box-sizing: border-box; 
@@ -159,16 +159,6 @@
             font-weight: bold;
             margin-top: 5px;
         }
-
-        /* 員工位置 */
-        #input   { top: 200px; left: 30px; }
-        #os      { top: 50px;  left: 150px; }
-        #cpu     { top: 200px; left: 300px; }
-        #storage { top: 350px; left: 200px; }
-        #ram     { top: 350px; left: 400px; }
-        #gpu     { top: 50px;  left: 550px; }
-        #sound   { top: 200px; left: 550px; }
-        #output  { top: 200px; right: 30px; }
 
         /* 動態效果：被點亮 (工作中) */
         .component.highlight {
@@ -210,8 +200,8 @@
     <h1>歡迎光臨「電腦未來餐廳」！</h1>
 
     <div class="tab-container">
-        <button class="tab-link active" onclick="openTab(event, 'Video')">範例一：播放 YouTube</button>
-        <button class="tab-link" onclick="openTab(event, 'Game')">範例二：玩 3D 遊戲</button>
+        <button class="tab-link active" data-tab="Video">範例一：播放 YouTube</button>
+        <button class="tab-link" data-tab="Game">範例二：玩 3D 遊戲</button>
     </div>
 
     <div id="Video" class="tab-content active">
@@ -257,6 +247,7 @@
         const resetButton = document.getElementById('resetButton');
         const dataPacket = document.getElementById('dataPacket');
         const logBox = document.getElementById('log').querySelector('p');
+        const tabLinks = document.querySelectorAll('.tab-link'); // 【修正】 取得所有頁籤按鈕
         
         const components = {
             input: document.getElementById('input'),
@@ -277,25 +268,30 @@
         startGameButton.addEventListener('click', runGameAnimation);
         resetButton.addEventListener('click', resetAnimation);
 
-        // 3. 頁籤切換功能
-        function openTab(evt, tabName) {
-            if (isAnimating) return; // 動畫中不給切
+        // 3. 【修正】 頁籤切換功能 (改用 JS 監聽)
+        tabLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                if (isAnimating) return; // 動畫中不給切
 
-            let i, tabContent, tabLinks;
-            tabContent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabContent.length; i++) {
-                tabContent[i].style.display = "none";
-            }
-            
-            tabLinks = document.getElementsByClassName("tab-link");
-            for (i = 0; i < tabLinks.length; i++) {
-                tabLinks[i].className = tabLinks[i].className.replace(" active", "");
-            }
-            
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
-            resetAnimation(); // 切換頁籤時重置
-        }
+                const tabName = event.currentTarget.dataset.tab;
+                
+                // 隱藏所有頁籤內容
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = "none";
+                });
+                
+                // 移除所有頁籤的 'active' 狀態
+                tabLinks.forEach(link => link.classList.remove('active'));
+                
+                // 顯示點擊的頁籤內容
+                document.getElementById(tabName).style.display = "block";
+                // 幫點擊的頁籤加上 'active' 狀態
+                event.currentTarget.classList.add('active');
+                
+                resetAnimation(); // 切換頁籤時重置
+            });
+        });
+
 
         // 4. 輔助工具：
         function sleep(ms) {
@@ -347,6 +343,7 @@
             disableStartButtons();
             clearHighlights();
             dataPacket.style.opacity = '1';
+            dataPacket.innerHTML = '📋';
 
             updateLog('步驟 1: 你 (顧客) 點擊了播放按鈕！');
             components.input.classList.add('highlight');
