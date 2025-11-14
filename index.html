@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>電腦餐廳 運作流程 (YouTube 範例)</title>
+    <title>電腦餐廳 運作流程 (V9.0 - 暫停版)</title>
     
     <style>
         body {
@@ -61,6 +61,16 @@
         .controls button:disabled {
             background-color: #aaa;
             cursor: not-allowed;
+        }
+        
+        /* 【新功能】 暫停與重來按鈕的樣式 */
+        #pauseButton {
+            background-color: #ffc107; /* 橘黃色 */
+            color: #212529;
+            margin-top: 20px;
+        }
+        #pauseButton:hover {
+            background-color: #e0a800;
         }
         #resetButton {
             background-color: #6c757d;
@@ -183,7 +193,10 @@
         </div>
     </div>
 
-    <button id="resetButton" style="display: none;">重來一次</button>
+    <div>
+        <button id="pauseButton" style="display: none;">暫停</button>
+        <button id="resetButton" style="display: none;">重來一次</button>
+    </div>
 
     <div id="log" class="log-box">
         <h4>流程說明：</h4>
@@ -209,6 +222,7 @@
             // 1. 取得所有需要控制的 HTML 元素
             const startVideoButton = document.getElementById('startVideoButton');
             const resetButton = document.getElementById('resetButton');
+            const pauseButton = document.getElementById('pauseButton'); // 【新功能】 取得暫停按鈕
             const dataPacket = document.getElementById('dataPacket');
             const logBox = document.getElementById('log').querySelector('p');
 
@@ -225,12 +239,33 @@
 
             const initialPacketPos = { top: '230px', left: '60px' };
             let isAnimating = false;
+            let isPaused = false; // 【新功能】 暫停狀態
 
             // 2. 幫按鈕加上 "點擊" 事件
             startVideoButton.addEventListener('click', runVideoAnimation);
             resetButton.addEventListener('click', resetAnimation);
+            pauseButton.addEventListener('click', togglePause); // 【新功能】 暫停按鈕事件
 
-            // 3. 輔助工具：
+            // 3. 【新功能】 暫停/繼續 功能
+            function togglePause() {
+                isPaused = !isPaused; // 切換狀態
+                if (isPaused) {
+                    pauseButton.textContent = '繼續';
+                    updateLog('【已暫停】...請按「繼續」以繼續流程。');
+                } else {
+                    pauseButton.textContent = '暫停';
+                    // 說明文字會由主流程 runVideoAnimation() 自動更新
+                }
+            }
+
+            // 4. 【新功能】 檢查是否處於暫停狀態
+            async function checkPause() {
+                while (isPaused) {
+                    await sleep(100); // 如果暫停中，就每 0.1 秒檢查一次
+                }
+            }
+
+            // 5. 輔助工具：
             function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
@@ -257,9 +292,10 @@
                 isAnimating = true;
                 startVideoButton.disabled = true;
                 resetButton.style.display = 'inline-block';
+                pauseButton.style.display = 'inline-block'; // 【新功能】 顯示暫停按鈕
             }
 
-            // 4. 重置動畫
+            // 6. 重置動畫
             function resetAnimation() {
                 clearHighlights();
                 updateLog('請點擊開始按鈕...');
@@ -269,32 +305,42 @@
                 
                 startVideoButton.disabled = false;
                 resetButton.style.display = 'none';
+                
+                // 【新功能】 重置暫停按鈕
+                pauseButton.style.display = 'none';
+                isPaused = false;
+                pauseButton.textContent = '暫停';
+
                 isAnimating = false;
             }
 
-            // 5. 播放 YouTube 動畫
+            // 7. 播放 YouTube 動畫 (【新功能】 已加入 checkPause() )
             async function runVideoAnimation() {
                 disableStartButtons();
                 clearHighlights();
                 dataPacket.style.opacity = '1';
                 dataPacket.innerHTML = '📋';
 
+                await checkPause(); // 在每一步前都檢查是否要暫停
                 updateLog('步驟 1: 你 (顧客) 點擊了播放按鈕！');
                 components.input.classList.add('highlight');
                 await sleep(2000);
 
+                await checkPause();
                 updateLog('步驟 2: "服務生"(滑鼠) 將指令 📋 交給 "餐廳經理"(OS)。');
                 clearHighlights();
                 components.os.classList.add('highlight');
                 movePacketTo(components.os);
                 await sleep(2000);
 
+                await checkPause();
                 updateLog('步驟 3: "經理"(OS) 叫 "主廚"(CPU) 來處理這個影片任務！');
                 clearHighlights();
                 components.cpu.classList.add('highlight');
                 movePacketTo(components.cpu);
                 await sleep(2000);
 
+                await checkPause();
                 updateLog('步驟 4a: "主廚"(CPU) 先跑去 "大冰箱"(硬碟/SSD) 拿取 APP 資料。');
                 clearHighlights();
                 components.cpu.classList.add('highlight');
@@ -302,6 +348,7 @@
                 movePacketTo(components.storage);
                 await sleep(2000);
 
+                await checkPause();
                 updateLog('步驟 4b: "主廚" 把資料 📋 放到 "流理臺"(RAM) 上準備。');
                 clearHighlights();
                 components.cpu.classList.add('highlight');
@@ -309,6 +356,7 @@
                 movePacketTo(components.ram);
                 await sleep(2000);
 
+                await checkPause();
                 updateLog('步驟 5: "主廚"(CPU) 在 "流理臺"(RAM) 上開始料理 (解碼影片)！');
                 clearHighlights();
                 components.cpu.classList.add('highlight');
@@ -316,25 +364,32 @@
                 movePacketTo(components.cpu);
                 await sleep(2500);
 
+                await checkPause();
                 updateLog('步驟 6: "主廚" 將「畫面」和「聲音」分工出去...');
                 clearHighlights();
                 components.gpu.classList.add('highlight');
                 movePacketTo(components.gpu);
                 await sleep(1000);
+
+                await checkPause(); // 在分工步驟中也加入
                 components.sound.classList.add('highlight');
                 movePacketTo(components.sound);
                 await sleep(2000);
 
+                await checkPause();
                 updateLog('步驟 7: 上菜！「畫面」和「聲音」同時送到 "上菜口"(螢幕/喇叭)！');
                 clearHighlights();
                 components.output.classList.add('highlight');
                 movePacketTo(components.output);
                 await sleep(3000);
 
+                await checkPause();
                 clearHighlights();
                 components.output.classList.add('highlight');
                 updateLog('流程完成！你成功看到了 YouTube 影片！');
                 dataPacket.style.opacity = '0';
+                
+                await checkPause(); // 流程結束後也檢查一次
             }
         
         }); // 結束 DOMContentLoaded
