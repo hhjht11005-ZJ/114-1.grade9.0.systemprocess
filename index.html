@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>電腦餐廳 運作流程 (V2.1)</title>
+    <title>電腦餐廳 運作流程 (YouTube 範例)</title>
+    
     <style>
-        /* CSS 樣式 - 負責網頁的「外觀」*/
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
             background-color: #f0f4f8;
@@ -20,52 +20,27 @@
 
         h1 {
             color: #0056b3;
+            margin-bottom: 10px;
+        }
+        body > p {
+            margin-top: 0;
+            margin-bottom: 20px;
+            max-width: 800px;
+            font-size: 1.1em;
         }
 
-        /* 頁籤結構 */
-        .tab-container {
+        /* 內容框 */
+        .content-box {
+            padding: 20px;
+            background-color: #fff;
             width: 90%;
             max-width: 900px;
+            box-sizing: border-box;
             margin-bottom: 20px;
-            background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            overflow: hidden; /* 確保圓角 */
-        }
-        .tab-link {
-            width: 50%;
-            padding: 15px 10px;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            background-color: #e9ecef;
-            color: #495057;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            float: left; /* 讓按鈕並排 */
-            box-sizing: border-box; /* 確保 padding 不會影響寬度 */
-        }
-        .tab-link:hover {
-            background-color: #dee2e6;
-        }
-        .tab-link.active {
-            background-color: #007bff;
-            color: white;
         }
 
-        /* 頁籤內容 */
-        .tab-content {
-            clear: both; /* 清除 float 影響 */
-            padding: 20px;
-            border-top: 1px solid #ddd;
-            display: none; /* 預設隱藏 */
-            background-color: #fff;
-            border-radius: 0 0 10px 10px;
-        }
-        .tab-content.active {
-            display: block; /* 顯示當前頁籤 */
-        }
-        
         /* 控制按鈕 */
         .controls {
             margin: 10px;
@@ -90,6 +65,7 @@
         #resetButton {
             background-color: #6c757d;
             margin-left: 10px;
+            margin-top: 20px;
         }
         #resetButton:hover {
             background-color: #5a6268;
@@ -118,7 +94,7 @@
             color: #0056b3;
             font-weight: bold;
         }
-        
+
         /* 餐廳的佈局 */
         .restaurant-layout {
             position: relative;
@@ -148,6 +124,8 @@
             transition: all 0.3s ease;
             padding: 5px;
             box-sizing: border-box; 
+            font-size: 0.9em;
+            color: #555;
         }
 
         .component .icon {
@@ -155,10 +133,19 @@
         }
 
         .component .label {
-            font-size: 14px;
             font-weight: bold;
             margin-top: 5px;
         }
+
+        /* 組件定位 */
+        #input    { top: 200px; left: 50px; }
+        #os       { top: 50px; left: 200px; }
+        #cpu      { top: 200px; left: 350px; }
+        #storage  { top: 350px; left: 200px; }
+        #ram      { top: 200px; left: 500px; }
+        #gpu      { top: 50px; left: 650px; }
+        #sound    { top: 350px; left: 650px; }
+        #output   { top: 200px; left: 750px; }
 
         /* 動態效果：被點亮 (工作中) */
         .component.highlight {
@@ -167,19 +154,6 @@
             background-color: #fff5f3;
             transform: scale(1.05);
             box-shadow: 0 0 15px rgba(255, 99, 71, 0.5);
-        }
-
-        /* 遊戲專用：持續高壓工作 (閃爍) */
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
-            50% { transform: scale(1.1); box-shadow: 0 0 25px rgba(255, 0, 0, 1); }
-            100% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 0, 0, 0.5); }
-        }
-        .component.working-hard {
-            border-style: solid;
-            border-color: #dc3545; /* 深紅色 */
-            background-color: #fff0f0;
-            animation: pulse 0.8s infinite; /* 瘋狂閃爍 */
         }
 
         /* "點菜單" (資料包) */
@@ -191,30 +165,21 @@
             transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10;
             opacity: 0;
+            width: 30px;
+            height: 30px;
+            text-align: center;
         }
-
     </style>
 </head>
 <body>
 
     <h1>歡迎光臨「電腦未來餐廳」！</h1>
+    <p>這是一間高科技餐廳，我們將示範「播放 YouTube 影片」的流程，看看電腦的各個組件是如何協同工作的！</p>
 
-    <div class="tab-container">
-        <button class="tab-link active" data-tab="Video">範例一：播放 YouTube</button>
-        <button class="tab-link" data-tab="Game">範例二：玩 3D 遊戲</button>
-    </div>
-
-    <div id="Video" class="tab-content active">
+    <div class="content-box">
         <p>點擊按鈕，看看一份「YouTube 影片訂單」是如何完成的！</p>
         <div class="controls">
             <button id="startVideoButton">點播 YouTube 影片</button>
-        </div>
-    </div>
-
-    <div id="Game" class="tab-content">
-        <p>點擊按鈕，看看「玩 3D 遊戲」的流程有多麼忙碌！</p>
-        <div class="controls">
-            <button id="startGameButton">開始玩 3D 遊戲</button>
         </div>
     </div>
 
@@ -222,7 +187,7 @@
 
     <div id="log" class="log-box">
         <h4>流程說明：</h4>
-        <p>請選擇一個範例並點擊開始按鈕...</p>
+        <p>請點擊開始按鈕...</p>
     </div>
 
     <div class="restaurant-layout">
@@ -239,17 +204,14 @@
     </div>
 
     <script>
-        // JavaScript - 負責網頁的「行為」和「動態」
         document.addEventListener('DOMContentLoaded', function() {
-            
+        
             // 1. 取得所有需要控制的 HTML 元素
             const startVideoButton = document.getElementById('startVideoButton');
-            const startGameButton = document.getElementById('startGameButton');
             const resetButton = document.getElementById('resetButton');
             const dataPacket = document.getElementById('dataPacket');
             const logBox = document.getElementById('log').querySelector('p');
-            const tabLinks = document.querySelectorAll('.tab-link');
-            
+
             const components = {
                 input: document.getElementById('input'),
                 os: document.getElementById('os'),
@@ -262,35 +224,13 @@
             };
 
             const initialPacketPos = { top: '230px', left: '60px' };
-            let isAnimating = false; // 防止動畫重疊
+            let isAnimating = false;
 
             // 2. 幫按鈕加上 "點擊" 事件
             startVideoButton.addEventListener('click', runVideoAnimation);
-            startGameButton.addEventListener('click', runGameAnimation);
             resetButton.addEventListener('click', resetAnimation);
 
-            // 3. 頁籤切換功能
-            tabLinks.forEach(link => {
-                link.addEventListener('click', (event) => {
-                    if (isAnimating) return; 
-
-                    const tabName = event.currentTarget.dataset.tab;
-                    
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.style.display = "none";
-                    });
-                    
-                    tabLinks.forEach(link => link.classList.remove('active'));
-                    
-                    document.getElementById(tabName).style.display = "block";
-                    event.currentTarget.classList.add('active');
-                    
-                    resetAnimation(); 
-                });
-            });
-
-
-            // 4. 輔助工具：
+            // 3. 輔助工具：
             function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
@@ -298,14 +238,13 @@
             function clearHighlights() {
                 Object.values(components).forEach(el => {
                     el.classList.remove('highlight');
-                    el.classList.remove('working-hard');
                 });
             }
 
             function movePacketTo(element) {
                 const target = element;
-                const top = target.offsetTop + (target.offsetHeight / 2) - 20 + 'px';
-                const left = target.offsetLeft + (target.offsetWidth / 2) - 15 + 'px';
+                const top = target.offsetTop + (target.offsetHeight / 2) - (dataPacket.offsetHeight / 2) + 'px';
+                const left = target.offsetLeft + (target.offsetWidth / 2) - (dataPacket.offsetWidth / 2) + 'px';
                 dataPacket.style.top = top;
                 dataPacket.style.left = left;
             }
@@ -317,25 +256,23 @@
             function disableStartButtons() {
                 isAnimating = true;
                 startVideoButton.disabled = true;
-                startGameButton.disabled = true;
                 resetButton.style.display = 'inline-block';
             }
 
-            // 5. 重置動畫
+            // 4. 重置動畫
             function resetAnimation() {
                 clearHighlights();
-                updateLog('請選擇一個範例並點擊開始按鈕...');
+                updateLog('請點擊開始按鈕...');
                 dataPacket.style.opacity = '0';
                 dataPacket.style.top = initialPacketPos.top;
                 dataPacket.style.left = initialPacketPos.left;
                 
                 startVideoButton.disabled = false;
-                startGameButton.disabled = false;
                 resetButton.style.display = 'none';
                 isAnimating = false;
             }
 
-            // 6. 範例一：播放 YouTube 動畫
+            // 5. 播放 YouTube 動畫
             async function runVideoAnimation() {
                 disableStartButtons();
                 clearHighlights();
@@ -396,96 +333,10 @@
 
                 clearHighlights();
                 components.output.classList.add('highlight');
-                updateLog('流程完成！你成功看到了 YouTube 影片！(CPU/GPU 負擔中等)');
+                updateLog('流程完成！你成功看到了 YouTube 影片！');
                 dataPacket.style.opacity = '0';
             }
-
-            // 7. 範例二：玩 3D 遊戲動畫
-            async function runGameAnimation() {
-                disableStartButtons();
-                clearHighlights();
-                dataPacket.style.opacity = '1';
-                dataPacket.innerHTML = '🎮'; // 換成遊戲圖示
-
-                updateLog('【階段 1: 載入遊戲】 點擊遊戲圖示！');
-                components.input.classList.add('highlight');
-                await sleep(2000);
-
-                updateLog('【階段 1】 "經理"(OS) 呼叫 "主廚"(CPU) 開始載入遊戲。');
-                clearHighlights();
-                components.os.classList.add('highlight');
-                movePacketTo(components.os);
-                await sleep(1500);
-                components.cpu.classList.add('highlight');
-                movePacketTo(components.cpu);
-                await sleep(2000);
-
-                updateLog('【階段 1】 "主廚"(CPU) 從 "大冰箱"(硬碟) 抓取「巨量」遊戲檔案！');
-                clearHighlights();
-                components.cpu.classList.add('highlight');
-                components.storage.classList.add('highlight');
-                movePacketTo(components.storage);
-                dataPacket.style.transform = 'scale(2.0)'; // 遊戲資料包很大
-                await sleep(2500);
-
-                updateLog('【階段 1】 全部丟到 "流理臺"(RAM)！ (這就是遊戲讀取畫面...)');
-                clearHighlights();
-                components.cpu.classList.add('highlight');
-                components.ram.classList.add('highlight');
-                movePacketTo(components.ram);
-                await sleep(3000);
-                dataPacket.style.transform = 'scale(1.0)'; // 恢復
-
-                updateLog('【階段 2: 遊戲開始！】 你按下了 'W' 鍵 (往前走)');
-                clearHighlights();
-                components.input.classList.add('highlight');
-                movePacketTo(components.input);
-                await sleep(2000);
-
-                updateLog('【階段 2】 指令 🎮 瞬間傳給 "主廚"(CPU)！');
-                components.os.classList.add('highlight'); // OS 很快
-                movePacketTo(components.os);
-                await sleep(500);
-                components.cpu.classList.add('highlight');
-                movePacketTo(components.cpu);
-                await sleep(1500);
-                
-                updateLog('【遊戲循環 START】 CPU, RAM, GPU 開始「協同高壓」運作！');
-                clearHighlights();
-                components.cpu.classList.add('working-hard'); // 持續高壓
-                components.ram.classList.add('working-hard');
-                components.gpu.classList.add('working-hard');
-                await sleep(2500);
-
-                updateLog('【循環】 "主廚"(CPU) 瘋狂跟 "流理臺"(RAM) 拿資料 (你的位置? 物理碰撞?)');
-                movePacketTo(components.ram);
-                await sleep(1500);
-                movePacketTo(components.cpu);
-                await sleep(1500);
-
-                updateLog('【循環】 "主廚"(CPU) 算出結果，丟給 "擺盤師"(GPU)：『快畫 3D 畫面！』');
-                movePacketTo(components.gpu);
-                await sleep(2000);
-
-                updateLog('【循環】 "主廚"(CPU) 同時丟給 "音效師"(🎶)：『播放腳步聲！』');
-                components.sound.classList.add('highlight'); // 音效也是同步
-                await sleep(1000);
-
-                updateLog('【循環】 GPU 和音效師把結果送到 "上菜口"(輸出)！');
-                components.output.classList.add('highlight');
-                movePacketTo(components.output);
-                await sleep(2500);
-
-                updateLog('【循環結束】...這一整套循環，每秒要重複 60 次以上！');
-                clearHighlights();
-                components.cpu.classList.add('working-hard');
-                components.ram.classList.add('working-hard');
-                components.gpu.classList.add('working-hard');
-                components.output.classList.add('highlight');
-                dataPacket.style.opacity = '0';
-                dataPacket.innerHTML = '📋'; // 換回菜單
-            }
-
+        
         }); // 結束 DOMContentLoaded
     </script>
 
